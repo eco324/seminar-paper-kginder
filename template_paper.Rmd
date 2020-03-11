@@ -1,6 +1,6 @@
 ---
 title: "Give your paper a descriptive title"
-author: "Your Name"
+author: "Kate Ginder"
 abstract: \singlespacing 1-2 sentences max setting up why your paper is important. One sentence that describes your research question. 1-2 sentences describing your data and methods. 1-2 sentences describing your main results. One sentence stating the implications (optional).
 thanks: "Use this space to acknowledge help you received completed the project. You should thank your peer reviewer and your code checker by name and acknowledge comments from your classmates in ECO 324 at Smith College Spring 2020, in addition to anyone else that provided useful assistance."
 header-includes:
