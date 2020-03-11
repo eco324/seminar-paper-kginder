@@ -6,7 +6,7 @@ output:
     toc: true
     number_sections: true
 ---
-
+Hi Kate!
 ```{r setup, echo = F, message = F}
 knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
