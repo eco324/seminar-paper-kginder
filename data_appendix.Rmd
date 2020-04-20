@@ -96,16 +96,16 @@ View(Compost_Tracker_4_0)
 
 
 Compost_Tracker_4.0.csv <- lapply(Compost_Tracker_4.0, read_csv) %>% bind_rows() %>% 
-  select(kingplates = #_of_plates_-_King,
+  select(kingplates = `#_of_plates_-_King`,
            kingcompost = lb_composting_-_King,
-         cutterplates = #_of_plates_-_cutter,
+         cutterplates = `#_of_plates_-_cutter`,
            cuttercompost = lb_compost_-_Cutter)
 
 
-'export_summary_table(dfSummary(Compost_Tracker_4_0))
+`export_summary_table(dfSummary(Compost_Tracker_4_0))`
 ```
 
-The data was coding correctly for the variables with number to be codded as numerical variables.  The only categorical variable in the data was Day of the week.
+The data was coding correctly for the variables with numbers to be codded as numerical variables.  The only categorical variable in the data was Day of the week.
 
 # Analysis Variables
 
