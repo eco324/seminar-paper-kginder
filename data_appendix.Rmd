@@ -95,7 +95,7 @@ Compost_Tracker_4_0 <- read_csv("Raw Data Seminar Paper/Compost Tracker 4.0.csv"
 View(Compost_Tracker_4_0)
 
 
-Compost_Tracker_4.0.csv <- lapply(Compost_Tracker_4.0, read_csv) %>% bind_rows() %>% 
+Compost_Tracker_4.0 <- lapply(Compost_Tracker_4.0, read_csv) %>% bind_rows() %>% 
   select(kingplates = `#_of_plates_-_King`,
            kingcompost = lb_composting_-_King,
          cutterplates = `#_of_plates_-_cutter`,
