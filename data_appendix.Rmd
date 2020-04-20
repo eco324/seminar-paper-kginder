@@ -77,12 +77,12 @@ The following changes were made to create the importable files.
 The following data is from two of the Smith College dinning serviouses
 
 - **dates:** Date of the month.  
-- **day of the week:** Day of the week the meal is served on.
-- **# of plates - king:** Number of plates per night used in King dinning hall. 
-- **lb composting - king:** Pounds of compost per night King dinning hall.
-- **# of plates - cutter:** Number of plates per night used in Cutter dinning hall. 
-- **lb composting - cutter:** Pounds of compost per night Cutter dinning hall.
-- **Meal number:** Rotating menu cycle. 
+- **Dayoftheweek:** Day of the week the meal is served on.
+- **#ofplatesking:** Number of plates per night used in King dinning hall. 
+- **lbcompostingking:** Pounds of compost per night King dinning hall.
+- **#ofplatescutter:** Number of plates per night used in Cutter dinning hall. 
+- **lbcompostingcutter:** Pounds of compost per night Cutter dinning hall.
+- **Meal_number:** Rotating menu cycle. 
 
 ### Data import code and summary
 
@@ -91,18 +91,18 @@ The following data is from two of the Smith College dinning serviouses
 
 ```{r reading in variable names}
 library(readr)
-Compost_Tracker_4_0 <- read_csv("Raw Data Seminar Paper/Compost Tracker 4.0.csv")
-View(Compost_Tracker_4_0)
+Compost_Tracker_6_0 <- read_csv("Raw Data Seminar Paper/Compost Tracker 6.0.csv")
+View(Compost_Tracker_6_0)
 
 
-Compost_Tracker_4.0 <- lapply(Compost_Tracker_4.0, read_csv) %>% bind_rows() %>% 
-  select(kingplates = `#_of_plates_-_King`,
-           kingcompost = lb_composting_-_King,
-         cutterplates = `#_of_plates_-_cutter`,
-           cuttercompost = lb_compost_-_Cutter)
+Compost_data <- read_csv("Raw Data Seminar Paper/Compost Tracker 6.0.csv")  %>%
+  rename(king_plates = `#ofplatesKing`,
+        king_compost = lbcompostKing,
+        cutter_plates = `#ofplatescutter`,
+        cutter_compost = lbcompostCutter)
+View(Compost_data)
 
-
-`export_summary_table(dfSummary(Compost_Tracker_4_0))`
+`export_summary_table(dfSummary(Compost_data))`
 ```
 
 The data was coding correctly for the variables with numbers to be codded as numerical variables.  The only categorical variable in the data was Day of the week.
