@@ -1,5 +1,5 @@
 ---
-title: "Data Appendix to \"MAKE A TITLE\""
+title: "Data Appendix to \"Smith Compost Analysis\""
 author: "Kate Ginder"
 output: 
   pdf_document:
@@ -38,7 +38,7 @@ st_css()
 # Appendix description
 *Your Data Appendix should begin with a brief statement explaining its purpose like the following one.*
 
-This Data Appendix documents the data used in "MAKE A TITLE". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.
+This Data Appendix documents the data used in "Smith Compost Anlysis". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.  This data is a time series and will record pounds of compost in a college dinning hall.
 
 The datasets used directly by the final analysis are saved in `processed-data/` at the end of this file.
 
@@ -64,13 +64,14 @@ To obtain a copy of this data set please contact Susan Sayre at ssayre@smith.edu
 
 ### Importable version
 
-**Filename:** importable-data/Raw Data Seminar Paper/Compost Tracker 4.0.csv
+**Filename:** importable-data/Raw Data Seminar Paper/Compost Tracker 6.0.csv
 
 The following changes were made to create the importable files.
 
 1.The file was originally opened in excel on a Mac
 2.The header reading "Composting Feb & April" was deleted.  It was causing the variable names to import incorrectly.
-3. The document was then saved as a csv file
+3. Variable names were edited to allow R to read them
+4. The document was then saved as a csv file
 
 ### Variable descriptions
 
@@ -82,7 +83,7 @@ The following data is from two of the Smith College dinning serviouses
 - **lbcompostingking:** Pounds of compost per night King dinning hall.
 - **#ofplatescutter:** Number of plates per night used in Cutter dinning hall. 
 - **lbcompostingcutter:** Pounds of compost per night Cutter dinning hall.
-- **Meal_number:** Rotating menu cycle. 
+- **Meal_number:** Rotating menu cycle the coordinates to a different number. 
 
 ### Data import code and summary
 
@@ -91,21 +92,26 @@ The following data is from two of the Smith College dinning serviouses
 
 ```{r reading in variable names}
 library(readr)
-Compost_Tracker_6_0 <- read_csv("Raw Data Seminar Paper/Compost Tracker 6.0.csv")
-View(Compost_Tracker_6_0)
+importable_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")
+View(importable_data)
 
 
-Compost_data <- read_csv("Raw Data Seminar Paper/Compost Tracker 6.0.csv")  %>%
+Compost_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")  %>%
   rename(king_plates = `#ofplatesKing`,
         king_compost = lbcompostKing,
         cutter_plates = `#ofplatescutter`,
-        cutter_compost = lbcompostCutter)
+        cutter_compost = lbcompostCutter)  %>%
+pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
+  pivot_wider(names_from = "variable", values_from = "values") %>%
+  mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
+  mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
+date_var <= as.Date("2020-04-05") ~ 2,
+date_var <= as.Date("2020-05-03") ~ 3))
 View(Compost_data)
 
-`export_summary_table(dfSummary(Compost_data))`
+export_summary_table(dfSummary(Compost_data))
 ```
 
-The data was coding correctly for the variables with numbers to be codded as numerical variables.  The only categorical variable in the data was Day of the week.
 
 # Analysis Variables
 
@@ -113,25 +119,32 @@ This section should include a description of all the variables that are used in 
 
 Variables used in the final analysis are
 
-- **dates:** Date of the month.  
-- **day of the week:** Day of the week the meal is served on.
-- **kingplates:** Number of plates per night used in King dinning hall. 
-- **kingcompost:** Pounds of compost per night King dinning hall.
-- **cutterplates:** Number of plates per night used in Cutter dinning hall. 
-- **cuttercompost:** Pounds of compost per night Cutter dinning hall.
-- **Meal number:** Rotating menu cycle.
+- **date_var:** Date of the month read as a numerical value.  
+- **house:** House variable, king or cutter.
+- **plates:** Number of plates counted per meal.
+- **compost:** Pounds of compost collected per night.
+- **cycle:** Classifies the rotating menu into three distinct cycles.
 
 
 ```{r summary stats}
-summary(Compost_Tracker_4_0)
+summary(Compost_data)
 
 ```
+
+
+
+
+
+
 
 
 ```{r}
-ggplot(data = Compost_Tracker_4_0, aes(x = #_plates_-_king, y = lb_compost_-_King)) + geom_point() + geom_smooth(method = "lm")
+ggplot(data = Compost_data, aes(x = house, y = compost)) + geom_point() + geom_smooth(method = "lm")
 ```
 
+```{r}
+ggplot(data = Compost_data, aes(x = cycle_number, y = (cutter_compost/cutter_plates))) + geom_point() + geom_smooth(method = "lm")
+```
 
 
 
@@ -142,7 +155,7 @@ ggplot(data = Compost_Tracker_4_0, aes(x = #_plates_-_king, y = lb_compost_-_Kin
 
 *This section should include a discussion of any data patterns you notice based on the summaries created in the code above.*
 
-The data 
+There was not any surprising data recorded in the summary statistics.  Both dinning halls had similar plate counts for minimum and maximum values.  This was also true for the amount of compost tracked as well.  They had almost exactly the same mean 42.16 verse 42.79.   
 
 
 
