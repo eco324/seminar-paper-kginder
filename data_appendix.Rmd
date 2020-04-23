@@ -30,6 +30,12 @@ export_summary_table <- function(dfSummary_output){
 }
 ```
 
+```{r}
+library(dummies)
+library(caret)
+```
+
+
 ```{r set dfSummary css style, echo = F, include = F}
 st_css()
 ```
@@ -105,7 +111,7 @@ pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', v
   pivot_wider(names_from = "variable", values_from = "values") %>%
   mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
   mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
-date_var <= as.Date("2020-04-05") ~ 2,
+date_var <= as.Date("2020-04-04") ~ 2,
 date_var <= as.Date("2020-05-03") ~ 3))
 View(Compost_data)
 
@@ -123,11 +129,17 @@ Variables used in the final analysis are
 - **plates:** Number of plates counted per meal.
 - **compost:** Pounds of compost collected per night.
 - **cycle:** Classifies the rotating menu into three distinct cycles.
+- **posters_date:** Dummy variable for no posters (poster date 0: 2/2 - 4/4) and posters poster date 1: 4/5 -4/30.
 
 
-```{r summary stats}
+
+```{r summary stats, creating dummy variable}
 summary(Compost_data)
 
+# create dummy variable
+Compost_data <- Compost_data %>%
+  mutate(poster_date = case_when(date_var <= as.Date("2020-04-04") ~ 0,
+date_var <= as.Date("2020-04-30") ~ 1))
 ```
 
 ```{r summary stats for King}
@@ -157,9 +169,13 @@ ggplot(data = filter(Compost_data, cycle == 3), aes(plates, compost, color = hou
 ```
 
 
-```{r}
 
-```
+
+
+
+
+
+
 
 
 # Discussion of Data
