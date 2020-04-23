@@ -44,16 +44,12 @@ st_css()
 # Appendix description
 *Your Data Appendix should begin with a brief statement explaining its purpose like the following one.*
 
-This Data Appendix documents the data used in "Smith Compost Anlysis". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.  This data is a time series and will record pounds of compost in a college dinning hall.
+This Data Appendix documents the data used in "Smith Compost Analysis". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.  This data is a time series and will record pounds of compost in a college dinning hall.
 
 The datasets used directly by the final analysis are saved in `processed-data/` at the end of this file.
 
-*Note: this document structure will require you to re-run steps of your analysis multiple times. If your code takes a long time, please come talk with me about strategies to reduce run time or save earlier results.*
-
-
 
 # Raw data
-*Each dataset you use will have its own documentation section. The next subsection in this document (Dataset description) is a template. You can copy this section and paste it into your document each time you need to add a section for a new dataset. Note that each line in the Dataset description section __must__ end with two spaces.* 
 
 This section documents the data sets used in this analysis.
 
@@ -81,7 +77,7 @@ The following changes were made to create the importable files.
 
 ### Variable descriptions
 
-The following data is from two of the Smith College dinning serviouses
+The following data is from two of the Smith College dinning services
 
 - **dates:** Date of the month.  
 - **Dayoftheweek:** Day of the week the meal is served on.
@@ -92,8 +88,6 @@ The following data is from two of the Smith College dinning serviouses
 - **Meal_number:** Rotating menu cycle the coordinates to a different number. 
 
 ### Data import code and summary
-
-*Once you've described the variables, enter an R chunk by selecting Code -> Insert Chunk, or Ctrl+Alt+I, give it a name to describe the dataset you are importing. After importing, export a dataframe summary using the command.*
 
 
 ```{r reading in variable names}
@@ -117,6 +111,14 @@ View(Compost_data)
 
 ```
 
+# Data Processing
+
+For the dataset Compost_data, the variable house was hidden within the variable names of other variables.  Because much of the analysis involves comping King house to Cutter house, house needed to be able to stand alone. 
+```{r, Creating the Variable House}
+pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
+  pivot_wider(names_from = "variable", values_from = "values")
+```
+
 
 # Analysis Variables
 
@@ -130,6 +132,9 @@ Variables used in the final analysis are
 - **compost:** Pounds of compost collected per night.
 - **cycle:** Classifies the rotating menu into three distinct cycles.
 - **poster_date:** Dummy variable for no posters (poster date 0: 2/2 - 4/4) and posters poster date 1: 4/5 - 5/2.
+
+The variable 'date_var' originally came from the variable 'dates.'  'Dates' was read as a categorical variables, and it needed to be recognized as a numerical number.  These dates space the length of the experiment.  The variable 'house' was created by using the pivot function.  The data was originally set up for compost and plates in King house and compost and plates in Cutter.  By using the prior function house was able to become with own variable.  With the option for the two different houses.  'Plates' record the number of plates used per meal.  This figure is used to stand as a proxy for the number of student eating in the dinning hall.  'Compost' is recorded in pounds after each mean.  'Cycle' is derived from the 'meal number' variable, from 1-28 indicated the rotating meals for each cycle of the Smith college menu cycle.  There are three separate menu cycles.  'Poster_date' is a dummy variable represent the categorical variable the study is looking at.  When the posters were not up, the variable is 0.  When the posters were up, the variable is 1.   
+
 
 # Summary Statistics
 
@@ -148,11 +153,15 @@ king_data <- Compost_data %>% filter(house == "king")
 
 summary(filter(king_data, cycle == 1))
 summary(filter(king_data, cycle == 3))
+
+```
+
+```{r, Standard Deviation King}
+sd(filter(king_data, cycle == 1) plates)
 ```
 
 
-
-```{r}
+```{r, Summary Stats Cutter}
 cutter_data <- Compost_data %>% filter(house == "cutter")
 
 summary(filter(cutter_data, cycle == 1))
@@ -219,7 +228,9 @@ print(linearMod)
 # Discussion of Data
 
  
+By first looking at the summary statistics for Cutter and King one can see the data is very similar.  Because of the size of the two houses, this is to be expected.  During the trial period, Cycle 1, King and Cutter have very similar mean pounds of compost BLANK respectively.  They also have similar plate counts BLANK respectively.  When the trial begins, Cycle 3, those numbers shift slightly.  When King begins the treatment the mean pounds of compost drops to BLANK.  Cutter, with no trial implemented, has a mean pounds of compost of BLANK.
 
+Looking at the histograms.....
   
 
 
