@@ -109,7 +109,6 @@ date_var <= as.Date("2020-04-05") ~ 2,
 date_var <= as.Date("2020-05-03") ~ 3))
 View(Compost_data)
 
-export_summary_table(dfSummary(Compost_data))
 ```
 
 
@@ -120,7 +119,7 @@ This section should include a description of all the variables that are used in 
 Variables used in the final analysis are
 
 - **date_var:** Date of the month read as a numerical value.  
-- **house:** House variable, king or cutter.
+- **house:** House variable, King or Cutter.
 - **plates:** Number of plates counted per meal.
 - **compost:** Pounds of compost collected per night.
 - **cycle:** Classifies the rotating menu into three distinct cycles.
@@ -131,31 +130,43 @@ summary(Compost_data)
 
 ```
 
+```{r summary stats for King}
+king_data <- Compost_data %>% filter(house == "king")
 
-
-
-
-
-
-
-```{r}
-ggplot(data = Compost_data, aes(x = house, y = compost)) + geom_point() + geom_smooth(method = "lm")
-```
-
-```{r}
-ggplot(data = Compost_data, aes(x = cycle_number, y = (cutter_compost/cutter_plates))) + geom_point() + geom_smooth(method = "lm")
+summary(filter(king_data, cycle == 1))
+summary(filter(king_data, cycle == 3))
 ```
 
 
 
+```{r}
+cutter_data <- Compost_data %>% filter(house == "cutter")
 
+summary(filter(cutter_data, cycle == 1))
+summary(filter(cutter_data, cycle == 3))
+```
+
+
+
+```{r}
+ggplot(data = filter(Compost_data, cycle == 1), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
+```
+
+```{r}
+ggplot(data = filter(Compost_data, cycle == 3), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
+```
+
+
+```{r}
+
+```
 
 
 # Discussion of Data
 
-*This section should include a discussion of any data patterns you notice based on the summaries created in the code above.*
+ 
 
-There was not any surprising data recorded in the summary statistics.  Both dinning halls had similar plate counts for minimum and maximum values.  This was also true for the amount of compost tracked as well.  They had almost exactly the same mean 42.16 verse 42.79.   
+  
 
 
 
