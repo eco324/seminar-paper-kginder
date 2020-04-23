@@ -129,9 +129,9 @@ Variables used in the final analysis are
 - **plates:** Number of plates counted per meal.
 - **compost:** Pounds of compost collected per night.
 - **cycle:** Classifies the rotating menu into three distinct cycles.
-- **posters_date:** Dummy variable for no posters (poster date 0: 2/2 - 4/4) and posters poster date 1: 4/5 -4/30.
+- **poster_date:** Dummy variable for no posters (poster date 0: 2/2 - 4/4) and posters poster date 1: 4/5 - 5/2.
 
-
+# Summary Statistics
 
 ```{r summary stats, creating dummy variable}
 summary(Compost_data)
@@ -139,8 +139,9 @@ summary(Compost_data)
 # create dummy variable
 Compost_data <- Compost_data %>%
   mutate(poster_date = case_when(date_var <= as.Date("2020-04-04") ~ 0,
-date_var <= as.Date("2020-04-30") ~ 1))
+date_var <= as.Date("2020-05-2") ~ 1))
 ```
+
 
 ```{r summary stats for King}
 king_data <- Compost_data %>% filter(house == "king")
@@ -159,20 +160,57 @@ summary(filter(cutter_data, cycle == 3))
 ```
 
 
-
-```{r}
+```{r, Cycle 1 King and Cutter}
 ggplot(data = filter(Compost_data, cycle == 1), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
 ```
 
-```{r}
+```{r, Cycle 2 King and Cutter}
 ggplot(data = filter(Compost_data, cycle == 3), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
+```
+
+# Hisograms and Frequency Tables
+
+```{r}
+hist(data = filter(Compost_data, cycle ==1), aes(compost))
+
+hist(Compost_data$compost)
+```
+
+
+
+```{r}
+hist(king_data$compost)
+hist(filter(king_data, cycle == 1)$compost))
 ```
 
 
 
 
+# Densisty Plot
+
+```{r}
+
+```
 
 
+
+# Regresssion
+
+
+```{r}
+cor(king_data$compost, king_data$poster_date)
+```
+
+
+```{r}
+cor((filter(king_data, cycle == 1)$compost), king_data$poster_date)
+
+```
+
+```{r}
+linearMod = lm(compost ~ poster_date, king_data = data)
+print(linearMod)
+```
 
 
 
