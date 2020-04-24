@@ -9,6 +9,7 @@ output:
 ```{r setup, echo = F, message = F}
 knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
+library(stargazer)
 library(summarytools)
 st_options(plain.ascii = F,
            style = "rmarkdown",
@@ -111,10 +112,22 @@ View(Compost_data)
 
 ```
 
-# Data Processing
+# Data Processing and Construction
+
+
+```{r}
+#renaming vairalbles from the importable data
+
+rename(king_plates = `#ofplatesKing`,
+        king_compost = lbcompostKing,
+        cutter_plates = `#ofplatescutter`,
+        cutter_compost = lbcompostCutter)
+```
 
 For the dataset Compost_data, the variable house was hidden within the variable names of other variables.  Because much of the analysis involves comping King house to Cutter house, house needed to be able to stand alone. 
 ```{r, Creating the Variable House}
+
+#Creating a new variable "house"
 pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
   pivot_wider(names_from = "variable", values_from = "values")
 ```
@@ -138,14 +151,19 @@ The variable 'date_var' originally came from the variable 'dates.'  'Dates' was 
 
 # Summary Statistics
 
-```{r summary stats, creating dummy variable}
-summary(Compost_data)
+```{r Dummy Variable}
 
 # create dummy variable
 Compost_data <- Compost_data %>%
   mutate(poster_date = case_when(date_var <= as.Date("2020-04-04") ~ 0,
 date_var <= as.Date("2020-05-2") ~ 1))
 ```
+
+
+```{r summary stats}
+summary(Compost_data)
+```
+
 
 
 ```{r summary stats for King}
@@ -156,49 +174,58 @@ summary(filter(king_data, cycle == 3))
 
 ```
 
-```{r, Standard Deviation King}
-sd(filter(king_data, cycle == 1) plates)
+```{r Standard Deviation King}
+sd(filter(king_data, cycle == 1 )$plates)
+sd(filter(king_data, cycle == 2 )$plates)
+sd(filter(king_data, cycle == 1 )$compost)
+sd(filter(king_data, cycle == 2 )$compost)
 ```
 
 
-```{r, Summary Stats Cutter}
+```{r Summary Stats Cutter}
 cutter_data <- Compost_data %>% filter(house == "cutter")
 
 summary(filter(cutter_data, cycle == 1))
 summary(filter(cutter_data, cycle == 3))
+
 ```
 
 
-```{r, Cycle 1 King and Cutter}
+```{r Standard Deviation Cutter}
+sd(filter(cutter_data, cycle == 1)$plates)
+sd(filter(cutter_data, cycle == 2)$plates)
+sd(filter(cutter_data, cycle == 1)$compost)
+sd(filter(cutter_data, cycle == 2)$compost)
+```
+
+
+```{r Cycle 1 King and Cutter}
 ggplot(data = filter(Compost_data, cycle == 1), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
 ```
 
-```{r, Cycle 2 King and Cutter}
+```{r Cycle 2 King and Cutter}
 ggplot(data = filter(Compost_data, cycle == 3), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
 ```
 
 # Hisograms and Frequency Tables
 
-```{r}
-hist(data = filter(Compost_data, cycle ==1), aes(compost))
 
-hist(Compost_data$compost)
+```{r}
+cycle1_results <- Compost_data %>%
+  filter(cycle == 1)
+
+hist(cycle1_results$compost)
+```
+```{r Cycle 1 Histogram}
+ggplot(data = cycle1_results, aes(x = compost, fill = house)) + geom_histogram(position = "dodge")
 ```
 
+```{r Cycle 3 Histogram}
 
+cycle3_results <- Compost_data %>%
+  filter(cycle == 3)
 
-```{r}
-hist(king_data$compost)
-hist(filter(king_data, cycle == 1)$compost))
-```
-
-
-
-
-# Densisty Plot
-
-```{r}
-
+ggplot(data = cycle3_results, aes(x = compost, fill = house)) + geom_histogram(position = "dodge")
 ```
 
 
@@ -206,21 +233,25 @@ hist(filter(king_data, cycle == 1)$compost))
 # Regresssion
 
 
-```{r}
-cor(king_data$compost, king_data$poster_date)
+```{r Correlation}
+cor(king_data$compost, king_data$plates)
+cor(cutter_data$compost, cutter_data$plates)
 ```
 
 
-```{r}
-cor((filter(king_data, cycle == 1)$compost), king_data$poster_date)
+```{r lm king}
+linearMod = lm(compost ~ poster_date, data = king_data)
+summary(linearMod)
+```
 
+```{r lm cutter}
+linearMod = lm(compost ~ poster_date, data = cutter_data)
+summary(linearMod)
 ```
 
 ```{r}
-linearMod = lm(compost ~ poster_date, king_data = data)
-print(linearMod)
+stargazer(linearMod, type = "text")
 ```
-
 
 
 
