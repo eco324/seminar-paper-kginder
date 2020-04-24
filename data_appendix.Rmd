@@ -1,10 +1,13 @@
 ---
-title: "Data Appendix to \"Smith Compost Analysis\""
+title: "Data Appendix to "Smith Compost Analysis""
 author: "Kate Ginder"
-output: 
+output:
   pdf_document:
-    toc: true
-    number_sections: true
+    toc: yes
+    number_sections: yes
+  html_document:
+    toc: yes
+    df_print: paged
 ---
 ```{r setup, echo = F, message = F}
 knitr::opts_chunk$set(results = 'asis', cache = F)
@@ -31,10 +34,6 @@ export_summary_table <- function(dfSummary_output){
 }
 ```
 
-```{r}
-library(dummies)
-library(caret)
-```
 
 
 ```{r set dfSummary css style, echo = F, include = F}
@@ -114,7 +113,6 @@ View(Compost_data)
 
 ```{r Dummy Variable}
 
-# create dummy variable
 Compost_data <- Compost_data %>%
   mutate(poster_date = case_when(date_var <= as.Date("2020-04-04") ~ 0,
 date_var <= as.Date("2020-05-2") ~ 1))
@@ -123,6 +121,42 @@ date_var <= as.Date("2020-05-2") ~ 1))
 
 # Data Processing and Construction
 
+
+```{r}
+#reading in the importable data
+library(readr)
+importable_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")
+View(importable_data)
+
+#renaming the variables into a new BLANk
+Compost_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")  %>%
+  rename(king_plates = `#ofplatesKing`,
+        king_compost = lbcompostKing,
+        cutter_plates = `#ofplatescutter`,
+        cutter_compost = lbcompostCutter)  %>%
+#creating a new variable house
+pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
+  pivot_wider(names_from = "variable", values_from = "values") %>%
+#mutating the date variable to be read as a numerical value
+  mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
+#creating the Cycle variable
+  mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
+date_var <= as.Date("2020-04-04") ~ 2,
+date_var <= as.Date("2020-05-03") ~ 3))
+
+# create dummy variable
+Compost_data <- Compost_data %>%
+  mutate(poster_date = case_when(date_var <= as.Date("2020-04-04") ~ 0,
+date_var <= as.Date("2020-05-2") ~ 1))
+
+#creating a data frame to only include King
+king_data <- Compost_data %>% filter(house == "king")
+
+#creating a data frame to only include Cutter
+cutter_data <- Compost_data %>% filter(house == "cutter")
+
+
+```
 
 
 
@@ -241,14 +275,14 @@ stargazer(linearMod, type = "text")
 # Discussion of Data
 
  
-By first looking at the summary statistics for Cutter and King one can see the data is very similar.  Because of the size of the two houses, this is to be expected.  During the trial period, Cycle 1, King and Cutter have very similar mean pounds of compost 41.70 and 41.74 respectively.  They also have similar plate counts 285 and 289 respectively.  When the trial begins, Cycle 3, those numbers shift slightly.  When King begins the treatment the mean pounds of compost drops to 40.72.  Cutter, with no trial implemented, has a mean compost of 43.65 pounds.  The mean plates in King during the trial increases slightly to 291.7 while the plates in Cutter moves slightly to 289.2.
+By first looking at the summary statistics for Cutter and King, one can see the data is very similar.  Because of the size of the two houses, this is to be expected.  During the trial period, Cycle 1, King and Cutter have very similar mean pounds of compost 41.70 and 41.74, respectively.  They also have similar plate counts 285 and 289, respectively.  When the trial begins, Cycle 3, those numbers shift slightly.  When King begins the treatment, the mean pounds of compost drops to 40.72.  Cutter, with no trial implemented, has a mean compost of 43.65 pounds.  The mean plates in King during the trial increases slightly to 291.7 while the plates in Cutter moves somewhat to 289.2.
 
-The standard deviation for King compost in the baseline period is 12.5 but increases slightly to 15.48 during the trail.  This wee can see there in little spread in the overall amount of compost each night.  The difference between the 1st and 3rd quartile is at most 20 pounds.  Cutter's standard deviation is similar with with a spread of 13.88 during the trial and 16.10 during the trial.  For either period the largest difference between the 1st and 3rd quartile is 30 pounds.
+The standard deviation for King compost in the baseline period is 12.5 but increases slightly to 15.48 during the experiment.  Overall, there was not much spreading the total amount of compost each night.  The difference between the 1st and 3rd quartile is at most 20 pounds.  Cutter's standard deviation is similar with a spread of 13.88 during the trial and 16.10 during the trial.  For either period, the largest difference between the 1st and 3rd quartile is 30 pounds.
 
-A scatter plot of plates and compost shows that there is a general upward trend between the two variables.  The more plates used, the more compost is generated.  Much of the data is clustered around 340 plates and between 40 and 60 pounds of compost.  During cycle 1,  the line of best fits are very close.  With fewer plates king is producing more compost.  The lines intersect at approximately 325 plates and 45 pounds where Cutter starts producing more compost per plate.  In cycle 3, however, the line of best fit for King lies bellow the line for Cutter. 
+A scatter plot of plates and compost shows that there is a general upward trend between the two variables.  The more plates used, the more compost is generated.  Much of the data is clustered around 340 plates and between 40 and 60 pounds of compost.  During cycle 1,  the lines of best fits for both houses are very close.  With fewer plates, King produced more compost.  The lines intersect at approximately 325 plates and 45 pounds of compost, where Cutter starts creating more compost per plate.  In cycle 3, however, the line of best fit for King lies bellow the line for Cutter. 
 
 
-The histograms show the distribution of compost for both cutter and king, but is divided into cycle 1 and cycle 2.  The histogram for compost in cycle 1, shows the highest frequencies around 45-50 pounds of compost.  The data has a small spread and no outliers.  Cycle 3 has higher concentration of frequencies between 20 and 60 pounds of compost compared to cycle 1.  The data for Cutter apperears to be slightly bimodle while King's data looks normally distributed.     
+The histograms show the distribution of compost for both Cutter and King, but is divided into cycle 1 and cycle 3.  The histogram for compost in cycle 1, shows the highest frequencies around 45-50 pounds of compost.  The data has a small spread and no outliers.  Cycle 3 has a higher concentration of rates between 20 and 60 pounds of compost compared to cycle 1.  The data for Cutter appears to be slightly bimodal, while King's data looks normally distributed.     
   
 
 
