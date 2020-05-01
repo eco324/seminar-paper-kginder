@@ -85,14 +85,14 @@ The following changes were made to create the importable files.
 
 ### Variable descriptions
 
-The following data is from two of the Smith College dining services
+The following data is from King Scales and Cutter Ziskind dining halls at Smith College.
 
 - **dates:** Date of the month.  
 - **Dayoftheweek:** Day of the week the meal is served on.
 - **#ofplatesking:** Number of plates per night used in King dining hall. 
-- **lbcompostingking:** Pounds of compost per night King dining hall.
+- **lbcompostingking:** Pounds of compost per night used in King dining hall.
 - **#ofplatescutter:** Number of plates per night used in Cutter dining hall. 
-- **lbcompostingcutter:** Pounds of compost per night Cutter dining hall.
+- **lbcompostingcutter:** Pounds of compost per night used in Cutter dining hall.
 - **Meal_number:** Rotating menu cycle that coordinates to a different number. 
 
 ### Data import code and summary
@@ -180,7 +180,7 @@ This section should include a description of all the variables that are used in 
 - **cycle:** Classifies the rotating menu into three distinct cycles.
 - **poster_date:** Dummy variable for posters (poster date 0: 2/2 - 4/4) (posters poster date 1: 4/5 - 5/2).
 
-The variable 'date_var' originally came from the variable 'dates.'  'Dates' was read as a categorical variable, and it needed to be recognized as a numerical number.  These dates space the length of the experiment.  The variable 'house' was created by using the pivot function.  The data was originally set up for compost and plates in King house and compost and plates in Cutter.  By using the prior function ‘house’ was able to become its own variable.  With the option for the two different houses.  'Plates' record the number of plates used per meal.  This figure is used to stand as a proxy for the number of students eating in the dining hall.  'Compost' is recorded in pounds after each mean.  'Cycle' is derived from the 'meal number' variable, from 1-28 indicating the rotating meals for each cycle of the Smith college menu cycle.  There are three separate menu cycles.  'Poster_date' is a dummy variable representing the categorical variable the study is looking at.  When the posters were not up, the variable was 0.  When the posters were up, the variable was 1.   
+The variable 'date_var' originally came from the variable 'dates.'  'Dates' was read as a categorical variable, and it needed to be recognized as a numerical number.  These dates space the length of the experiment.  The variable 'house' was created by using the pivot function.  The data was originally set up for compost and plates in King house and compost and plates in Cutter.  By using the pivot() function ‘house’ was able to become its own variable with the option for the two different houses.  'Plates' record the number of plates used per meal.  This figure is used to stand as a proxy for the number of students eating in the dining hall.  'Compost' is recorded in pounds after each mean.  'Cycle' is derived from the 'meal number' variable, from 1-28 indicating the rotating meals for each cycle of the Smith college menu cycle.  There are three separate menu cycles.  'Poster_date' is a dummy variable representing the categorical variable the study is looking at.  When the posters were not up, the variable was 0.  When the posters were up, the variable was 1.   
 
 
 # Summary Statistics
@@ -283,14 +283,14 @@ stargazer(linearMod, type = "text")
  
 By first looking at the summary statistics for Cutter and King, one can see the data is very similar.  Because of the size of the two houses, this is to be expected.  During the trial period, Cycle 1, King and Cutter have very similar mean pounds of compost 41.70 and 41.74, respectively.  They also have similar plate counts 285 and 289, respectively.  When the trial begins, Cycle 3, those numbers shift slightly.  When King begins the treatment, the mean pounds of compost drops to 40.72.  Cutter, with no trial implemented, has a mean compost of 43.65 pounds.  The mean plates in King during the trial increases slightly to 291.7 while the plates in Cutter moves somewhat to 289.2.
 
-The standard deviation for King compost in the baseline period is 12.5 but increases slightly to 15.48 during the experiment.  Overall, there was not much spreading the total amount of compost each night.  The difference between the 1st and 3rd quartile is at most 20 pounds.  Cutter's standard deviation is similar with a spread of 13.88 during the trial and 16.10 during the trial.  For either period, the largest difference between the 1st and 3rd quartile is 30 pounds.
+The standard deviation for King compost in the baseline period (cycle 1) is 12.5 lbs but increases slightly to 15.48 lbs during the experiment (cycle 3).  Overall, there is minimal spread for total amount of compost each night.  The difference between the 1st and 3rd quartile is at most 20 pounds.  Cutter's standard deviation is similar with a spread of 13.88 lbs during the baseline (cycle 1) and 16.10 lbs during the trial (cycle 3).  For either period, the largest difference between the 1st and 3rd quartile is 30 pounds.
 
 A scatter plot of plates and compost shows that there is a general upward trend between the two variables.  The more plates used, the more compost is generated.  Much of the data is clustered around 340 plates and between 40 and 60 pounds of compost.  During cycle 1,  the lines of best fits for both houses are very close.  With fewer plates, King produced more compost.  The lines intersect at approximately 325 plates and 45 pounds of compost, where Cutter starts creating more compost per plate.  In cycle 3, however, the line of best fit for King lies below the line for Cutter. 
 
 
 The histograms show the distribution of compost for both Cutter and King, but is divided into cycle 1 and cycle 3.  The histogram for compost in cycle 1, shows the highest frequencies around 45-50 pounds of compost.  The data has a small spread and no outliers.  Cycle 3 has a higher concentration of rates between 20 and 60 pounds of compost compared to cycle 1.  The data for Cutter appears to be slightly bimodal, while King's data looks normally distributed. 
 
-Using there linear model function looking specifically at the King data, we can see that there was a small decrease in compost level with the posters were added.  However, due to the late p-value, .482, there is no significance.  Additionally, the R^2 value is very small, .006, meaning that the majority of the change in compost level was no due to the poster_date variable.    
+Using there linear model function looking specifically at the King data, we can see that there is a small decrease in compost level with the posters were added.  However, due to the late p-value, .482, there is no significance.  Additionally, the R^2 value is very small, .006, meaning that the majority of the change in compost level was not due to the poster_date variable.    
   
 
 
