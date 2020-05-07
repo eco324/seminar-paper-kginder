@@ -1,0 +1,302 @@
+---
+title: "Data Appendix to \"Smith Compost Analysis\""
+author: "Kate Ginder"
+output:
+  pdf_document:
+    toc: yes
+    number_sections: yes
+  html_document:
+    toc: yes
+    df_print: paged
+---
+
+```{r setup, echo = F, message = F}
+knitr::opts_chunk$set(results = 'asis', cache = F)
+library(tidyverse)
+library(stargazer)
+library(summarytools)
+st_options(plain.ascii = F,
+           style = "rmarkdown",
+           footnote = NA,
+           subtitle.emphasis = F,
+           dfSummary.silent = T,
+           dfSummary.valid.col = F,
+           tmp.img.dir = "./tmp",
+           dfSummary.style = "grid")
+
+#The following custom function simplifies the process of writing dfSummaries to html files
+export_summary_table <- function(dfSummary_output){
+  data_info <- attr(dfSummary_output, "data_info")
+  ds_name <- data_info$Data.frame
+  print(dfSummary_output,
+      file = str_c("output/", ds_name, "_summary.html"),
+      method = "browser",
+      report.title = ds_name)
+}
+```
+
+
+
+```{r}
+library(dplyr)
+library(forcats)
+
+```
+
+
+```{r set dfSummary css style, echo = F, include = F}
+st_css()
+```
+
+
+# Appendix description
+
+This Data Appendix documents the data used in "Smith Compost Analysis". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.  This data is a time series and will record pounds of compost in a college dining hall.
+
+The datasets used directly by the final analysis are saved in `processed-data/` at the end of this file.
+
+
+# Raw data
+
+This section documents the data sets used in this analysis.
+
+## Dataset description
+**Citation:** Smith College Dining Services  
+**Date Downloaded:** 04/17/2020  
+**Filename:** Compost Tracker 3.0.xlsx. 
+**Unit of observation:** amount of compost recorded in dining halls daily  
+**Dates covered:**  February 2020 - April 2020  
+
+### To obtain a copy
+
+To obtain a copy of this data set please contact Susan Sayre at ssayre@smith.edu
+
+### Importable version
+
+**Filename:** importable-data/Raw Data Seminar Paper/Compost Tracker 6.0.csv
+
+The following changes were made to create the importable files.
+
+1.The file was originally opened in excel on a Mac
+2.The header reading "Composting Feb & April" was deleted.  It was causing the variable names to import incorrectly.
+3. Variable names were edited to allow R to read them
+4. The document was then saved as a csv file
+
+### Variable descriptions
+
+The following data is from two of the Smith College dining services
+
+- **dates:** Date of the month.  
+- **Dayoftheweek:** Day of the week the meal is served on.
+- **#ofplatesking:** Number of plates per night used in King dining hall. 
+- **lbcompostingking:** Pounds of compost per night King dining hall.
+- **#ofplatescutter:** Number of plates per night used in Cutter dining hall. 
+- **lbcompostingcutter:** Pounds of compost per night Cutter dining hall.
+- **Meal_number:** Rotating menu cycle that coordinates to a different number.
+
+
+### Data import code and summary
+
+
+```{r reading in variable names}
+library(readr)
+importable_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")
+View(importable_data)
+
+
+Compost_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")  %>%
+  rename(king_plates = `#ofplatesKing`,
+        king_compost = lbcompostKing,
+        cutter_plates = `#ofplatescutter`,
+        cutter_compost = lbcompostCutter)  %>%
+pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
+  pivot_wider(names_from = "variable", values_from = "values") %>%
+  mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
+  mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
+date_var <= as.Date("2020-04-04") ~ 2,
+date_var <= as.Date("2020-05-03") ~ 3))
+View(Compost_data)
+
+```
+
+
+```{r Dummy Variable}
+
+Compost_data <- Compost_data %>%
+  mutate(poster_date = case_when(house == "cutter" ~ 0,
+date_var <= as.Date("2020-04-04") ~ 0,
+date_var <= as.Date("2020-05-2") ~ 1))
+```
+
+
+# Data Processing and Construction
+
+```{r}
+#reading in the importable data
+library(readr)
+importable_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")
+View(importable_data)
+
+#renaming the variables into a new BLANk
+Compost_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")  %>%
+  rename(king_plates = `#ofplatesKing`,
+        king_compost = lbcompostKing,
+        cutter_plates = `#ofplatescutter`,
+        cutter_compost = lbcompostCutter)  %>%
+#creating a new variable house
+pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
+  pivot_wider(names_from = "variable", values_from = "values") %>%
+#mutating the date variable to be read as a numerical value
+  mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
+#creating the Cycle variable
+  mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
+date_var <= as.Date("2020-04-04") ~ 2,
+date_var <= as.Date("2020-05-03") ~ 3))
+
+# create dummy variable
+Compost_data <- Compost_data %>%
+  mutate(poster_date = case_when(house == "cutter" ~ 0,
+date_var <= as.Date("2020-04-04") ~ 0,
+date_var <= as.Date("2020-05-2") ~ 1))
+
+#creating a data frame to only include King
+king_data <- Compost_data %>% filter(house == "king")
+
+#creating a data frame to only include Cutter
+cutter_data <- Compost_data %>% filter(house == "cutter")
+```
+
+
+# Analysis Variables
+
+This section should include a description of all the variables that are used in your final analysis. At the end of the section, you should save all of these variables in the processed_data folder of your repository.
+
+##Variables used in the final analysis are
+
+- **date_var:** Date of the month read as a numerical value.  
+- **house:** House variable, King or Cutter.
+- **plates:** Number of plates counted per meal.
+- **compost:** Pounds of compost collected per night.
+- **cycle:** Classifies the rotating menu into three distinct cycles.
+- **poster_date:** Dummy variable for posters (poster date 0: 2/2 - 4/4) (posters poster date 1: 4/5 - 5/2).
+
+The variable 'date_var' originally came from the variable 'dates.'  'Dates' was read as a categorical variable, and it needed to be recognized as a numerical number.  These dates space the length of the experiment.  The variable 'house' was created by using the pivot function.  The data was originally set up for compost and plates in King house and compost and plates in Cutter.  By using the prior function ‘house’ was able to become its own variable.  With the option for the two different houses.  'Plates' record the number of plates used per meal.  This figure is used to stand as a proxy for the number of students eating in the dining hall.  'Compost' is recorded in pounds after each mean.  'Cycle' is derived from the 'meal number' variable, from 1-28 indicating the rotating meals for each cycle of the Smith college menu cycle.  There are three separate menu cycles.  'Poster_date' is a dummy variable representing the categorical variable the study is looking at.  When the posters were not up, the variable was 0.  When the posters were up, the variable was 1.   
+
+
+# Summary Statistics
+
+
+```{r summary stats}
+summary(Compost_data)
+```
+
+
+
+```{r summary stats for King}
+king_data <- Compost_data %>% filter(house == "king")
+
+summary(filter(king_data, cycle == 1))
+summary(filter(king_data, cycle == 3))
+
+```
+
+```{r Standard Deviation King}
+sd(filter(king_data, cycle == 1 )$plates)
+sd(filter(king_data, cycle == 2 )$plates)
+sd(filter(king_data, cycle == 1 )$compost)
+sd(filter(king_data, cycle == 2 )$compost)
+```
+
+
+```{r Summary Stats Cutter}
+cutter_data <- Compost_data %>% filter(house == "cutter")
+
+summary(filter(cutter_data, cycle == 1))
+summary(filter(cutter_data, cycle == 3))
+
+```
+
+
+```{r Standard Deviation Cutter}
+sd(filter(cutter_data, cycle == 1)$plates)
+sd(filter(cutter_data, cycle == 2)$plates)
+sd(filter(cutter_data, cycle == 1)$compost)
+sd(filter(cutter_data, cycle == 2)$compost)
+```
+
+
+```{r Cycle 1 King and Cutter}
+ggplot(data = filter(Compost_data, cycle == 1), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
+```
+
+```{r Cycle 2 King and Cutter}
+ggplot(data = filter(Compost_data, cycle == 3), aes(plates, compost, color = house)) + geom_point() + geom_smooth(method = "lm")
+```
+
+
+# Hisograms
+
+
+```{r Cycle 1 Histogram}
+cycle1_results <- Compost_data %>%
+  filter(cycle == 1)
+
+ggplot(data = cycle1_results, aes(x = compost, fill = house)) + geom_histogram(position = "dodge")
+```
+
+```{r Cycle 3 Histogram}
+
+cycle3_results <- Compost_data %>%
+  filter(cycle == 3)
+
+ggplot(data = cycle3_results, aes(x = compost, fill = house)) + geom_histogram(position = "dodge")
+```
+
+
+
+# Regresssion
+
+## Correlation
+
+```{r Correlation}
+cor(king_data$compost, king_data$plates)
+cor(cutter_data$compost, cutter_data$plates)
+```
+
+## Regression
+
+```{r lm king}
+linearMod = lm(compost ~ poster_date, data = king_data)
+summary(linearMod)
+
+```
+
+```{r lm cutter}
+linearMod = lm(compost ~ poster_date, data = cutter_data)
+summary(linearMod)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
