@@ -17,7 +17,7 @@ library(stargazer)
 library(summarytools)
 st_options(plain.ascii = F,
            style = "rmarkdown",
-           footnote = NA,
+           #footnote = NA,
            subtitle.emphasis = F,
            dfSummary.silent = T,
            dfSummary.valid.col = F,
@@ -38,15 +38,15 @@ export_summary_table <- function(dfSummary_output){
 
 
 
-```{r}
+```{r reading in packages}
 library(dplyr)
 library(forcats)
-
+library(skimr)
 ```
 
 
 ```{r set dfSummary css style, echo = F, include = F}
-st_css()
+#st_css()
 ```
 
 
@@ -64,13 +64,13 @@ This section documents the data sets used in this analysis.
 ## Dataset description
 **Citation:** Smith College Dining Services  
 **Date Downloaded:** 04/17/2020  
-**Filename:** Compost Tracker 3.0.xlsx. 
+**Filename:** Compost Tracker 3.0.xlsx.
 **Unit of observation:** amount of compost recorded in dining halls daily  
 **Dates covered:**  February 2020 - April 2020  
 
 ### To obtain a copy
 
-To obtain a copy of this data set please contact Susan Sayre at ssayre@smith.edu
+To obtain a copy of this data set please contact Susan Sayre at ssayre@smith.edu. Due to the COVID-19 pandemic the spring semester 2020 was moved to remote learning and the dinning halls were closed.  The data analysed below is artificially created. Numbers are based off of one dinning hall over the course of a week, but do not represent the impact of the study.
 
 ### Importable version
 
@@ -100,76 +100,50 @@ The following data is from King Scales and Cutter Ziskind dining halls at Smith 
 
 ```{r reading in variable names}
 library(readr)
-importable_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")
-View(importable_data)
+importable_data <- read_csv("/Users/Kate/Desktop/seminar-paper-kginder/Raw Data Seminar Paper/importable_data.csv")
+#use getwd() get current directory
 
 
-Compost_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")  %>%
+Compost_data <-importable_data %>%
+  #rename the variables
   rename(king_plates = `#ofplatesKing`,
         king_compost = lbcompostKing,
         cutter_plates = `#ofplatescutter`,
         cutter_compost = lbcompostCutter)  %>%
+  #create new variable house
 pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
   pivot_wider(names_from = "variable", values_from = "values") %>%
+  #edit data so date is read as a numerical date
   mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
+  #create new variable cycle
   mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
 date_var <= as.Date("2020-04-04") ~ 2,
 date_var <= as.Date("2020-05-03") ~ 3))
-View(Compost_data)
+
+```
+
+
+```{r New Variable}
+#create a compost per plate variable
+Compost_data <- Compost_data %>%
+ mutate(compost_plate = compost/plates) 
 
 ```
 
 
 ```{r Dummy Variable}
-
+#create a dummy variable for poster date
 Compost_data <- Compost_data %>%
   mutate(poster_date = case_when(house == "cutter" ~ 0,
 date_var <= as.Date("2020-04-04") ~ 0,
 date_var <= as.Date("2020-05-2") ~ 1))
 ```
 
-
-# Data Processing and Construction
-
-```{r}
-#reading in the importable data
-library(readr)
-importable_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")
-View(importable_data)
-
-#renaming the variables into a new BLANk
-Compost_data <- read_csv("Raw Data Seminar Paper/importable_data.csv")  %>%
-  rename(king_plates = `#ofplatesKing`,
-        king_compost = lbcompostKing,
-        cutter_plates = `#ofplatescutter`,
-        cutter_compost = lbcompostCutter)  %>%
-#creating a new variable house
-pivot_longer(contains("_"), names_to = c("house","variable"), names_sep = '_', values_to = "values") %>%
-  pivot_wider(names_from = "variable", values_from = "values") %>%
-#mutating the date variable to be read as a numerical value
-  mutate(date_var = as.Date(dates, "%m/%d/%y")) %>%
-#creating the Cycle variable
-  mutate(cycle = case_when(date_var <= as.Date("2020-03-01") ~ 1,
-date_var <= as.Date("2020-04-04") ~ 2,
-date_var <= as.Date("2020-05-03") ~ 3))
-
-# create dummy variable
-Compost_data <- Compost_data %>%
-  mutate(poster_date = case_when(house == "cutter" ~ 0,
-date_var <= as.Date("2020-04-04") ~ 0,
-date_var <= as.Date("2020-05-2") ~ 1))
-
-#creating a data frame to only include King
-king_data <- Compost_data %>% filter(house == "king")
-
-#creating a data frame to only include Cutter
-cutter_data <- Compost_data %>% filter(house == "cutter")
-```
 
 
 # Analysis Variables
 
-This section should include a description of all the variables that are used in your final analysis. At the end of the section, you should save all of these variables in the processed_data folder of your repository.
+This section includes a description of all the variables that are used in the final analysis. At the end of this section, these variables are saved in the processed_data folder of the repository.
 
 ##Variables used in the final analysis are
 
@@ -179,8 +153,10 @@ This section should include a description of all the variables that are used in 
 - **compost:** Pounds of compost collected per night.
 - **cycle:** Classifies the rotating menu into three distinct cycles.
 - **poster_date:** Dummy variable for posters (poster date 0: 2/2 - 4/4) (posters poster date 1: 4/5 - 5/2).
+- **compost_plate** The amount of compost in (lb) divided by the number of plates.
 
-The variable 'date_var' originally came from the variable 'dates.'  'Dates' was read as a categorical variable, and it needed to be recognized as a numerical number.  These dates space the length of the experiment.  The variable 'house' was created by using the pivot function.  The data was originally set up for compost and plates in King house and compost and plates in Cutter.  By using the pivot() function ‘house’ was able to become its own variable with the option for the two different houses.  'Plates' record the number of plates used per meal.  This figure is used to stand as a proxy for the number of students eating in the dining hall.  'Compost' is recorded in pounds after each mean.  'Cycle' is derived from the 'meal number' variable, from 1-28 indicating the rotating meals for each cycle of the Smith college menu cycle.  There are three separate menu cycles.  'Poster_date' is a dummy variable representing the categorical variable the study is looking at.  When the posters were not up, the variable was 0.  When the posters were up, the variable was 1.   
+
+The variable 'date_var' originally came from the variable 'dates.'  'Dates' was read as a categorical variable, and it needed to be recognized as a numerical number.  These dates space the length of the experiment.  The variable 'house' was created by using the pivot function.  The data was originally set up for compost and plates in King house and compost and plates in Cutter.  By using the pivot() function ‘house’ was able to become its own variable with the option for the two different houses.  'Plates' record the number of plates used per meal.  This figure is used to stand as a proxy for the number of students eating in the dining hall.  'Compost' is recorded in pounds after each mean.  'Cycle' is derived from the 'meal number' variable, from 1-28 indicating the rotating meals for each cycle of the Smith college menu cycle.  There are three separate menu cycles.  'Poster_date' is a dummy variable representing the categorical variable the study is looking at.  When the posters were not up, the variable was 0.  When the posters were up, the variable was 1.  The variable 'compost_plate' is the total amount of compost per night in pounds divided by the number of plates used.  This will allow us to look at the amound og compost left on each plate per night, and show a more accurate description to if there is a change due to the intervention.   
 
 
 # Summary Statistics
@@ -191,37 +167,73 @@ summary(Compost_data)
 ```
 
 
-
-```{r summary stats for King}
+```{r summary stats king}
+#new data frame for king data
 king_data <- Compost_data %>% filter(house == "king")
 
-summary(filter(king_data, cycle == 1))
-summary(filter(king_data, cycle == 3))
+stargazer::stargazer(as.data.frame(filter(king_data, cycle == 1)),
+               title = "King Summary Statistics Cycle 1",
+               label = "fullResults",
+               header = F,
+               summary = T,
+               type = "latex",
+               keep = c("compost", "plates", "compost_plate"))
 
+stargazer::stargazer(as.data.frame(filter(king_data, cycle == 3)),
+               title = "King Summary Statistics Cycle 3",
+               label = "fullResults",
+               header = F,
+               summary = T,
+               type = "latex",
+               keep = c("compost", "plates", "compost_plate"))
 ```
+
+
+```{r}
+#skim(select(filter(king_data, cycle == 1), c("compost", "plates", "compost_plate")))
+```
+
 
 ```{r Standard Deviation King}
 sd(filter(king_data, cycle == 1 )$plates)
-sd(filter(king_data, cycle == 2 )$plates)
+sd(filter(king_data, cycle == 3 )$plates)
 sd(filter(king_data, cycle == 1 )$compost)
-sd(filter(king_data, cycle == 2 )$compost)
+sd(filter(king_data, cycle == 3 )$compost)
+sd(filter(king_data, cycle == 1 )$compost_plate)
+sd(filter(king_data, cycle == 3 )$compost_plate)
 ```
 
 
 ```{r Summary Stats Cutter}
+#new data frame for cutter data
 cutter_data <- Compost_data %>% filter(house == "cutter")
 
-summary(filter(cutter_data, cycle == 1))
-summary(filter(cutter_data, cycle == 3))
 
+stargazer::stargazer(as.data.frame(filter(cutter_data, cycle == 1)),
+               title = "Cutter Summary Statistics Cycle 1",
+               label = "fullResults",
+               header = F,
+               summary = T,
+               type = "latex",
+               keep = c("compost", "plates", "compost_plate"))
+
+stargazer::stargazer(as.data.frame(filter(cutter_data, cycle == 3)),
+               title = "Cutter Summary Statistics Cycle 3",
+               label = "fullResults",
+               header = F,
+               summary = T,
+               type = "latex",
+               keep = c("compost", "plates", "compost_plate"))
 ```
 
 
 ```{r Standard Deviation Cutter}
 sd(filter(cutter_data, cycle == 1)$plates)
-sd(filter(cutter_data, cycle == 2)$plates)
+sd(filter(cutter_data, cycle == 3)$plates)
 sd(filter(cutter_data, cycle == 1)$compost)
-sd(filter(cutter_data, cycle == 2)$compost)
+sd(filter(cutter_data, cycle == 3)$compost)
+sd(filter(cutter_data, cycle == 1 )$compost_plate)
+sd(filter(cutter_data, cycle == 3 )$compost_plate)
 ```
 
 
@@ -240,7 +252,7 @@ ggplot(data = filter(Compost_data, cycle == 3), aes(plates, compost, color = hou
 cycle1_results <- Compost_data %>%
   filter(cycle == 1)
 
-ggplot(data = cycle1_results, aes(x = compost, fill = house)) + geom_histogram(position = "dodge")
+ggplot(data = cycle1_results, aes(x = compost_plate, fill = house)) + geom_histogram(position = "dodge")
 ```
 
 ```{r Cycle 3 Histogram}
@@ -248,12 +260,12 @@ ggplot(data = cycle1_results, aes(x = compost, fill = house)) + geom_histogram(p
 cycle3_results <- Compost_data %>%
   filter(cycle == 3)
 
-ggplot(data = cycle3_results, aes(x = compost, fill = house)) + geom_histogram(position = "dodge")
+ggplot(data = cycle3_results, aes(x = compost_plate, fill = house)) + geom_histogram(position = "dodge")
 ```
 
 
 
-# Regresssion
+
 
 ## Correlation
 
@@ -262,36 +274,43 @@ cor(king_data$compost, king_data$plates)
 cor(cutter_data$compost, cutter_data$plates)
 ```
 
-## Regression
+# Regression
 
-```{r lm king}
-linearMod = lm(compost ~ poster_date, data = king_data)
-summary(linearMod)
-stargazer(linearMod, type = "text")
+```{r}
+compostmod1 = lm(compost_plate ~ poster_date + house, data = Compost_data)
+summary(compostmod1)
 ```
 
-```{r lm cutter}
-linearMod = lm(compost ~ poster_date, data = cutter_data)
+```{r regression cycle 1 & 3}
+
+linearMod = lm(compost_plate ~ poster_date + house, data = filter(Compost_data, cycle != 2))
 summary(linearMod)
-stargazer(linearMod, type = "text")
+
 ```
 
 
+```{r generate regression table, echo = F, results = "asis"}
+stargazer::stargazer(list(linearMod),
+               title = "Regession Results",
+               label = "fullResults",
+               header = F,
+               keep = c("poster_date", "house"))
+
+```
 
 # Discussion of Data
 
  
-By first looking at the summary statistics for Cutter and King, one can see the data is very similar.  Because of the size of the two houses, this is to be expected.  During the trial period, Cycle 1, King and Cutter have very similar mean pounds of compost 41.70 and 41.74, respectively.  They also have similar plate counts 285 and 289, respectively.  When the trial begins, Cycle 3, those numbers shift slightly.  When King begins the treatment, the mean pounds of compost drops to 40.72.  Cutter, with no trial implemented, has a mean compost of 43.65 pounds.  The mean plates in King during the trial increases slightly to 291.7 while the plates in Cutter moves somewhat to 289.2.
+By first looking at the summary statistics for Cutter and King, one can see the data is very similar.  Because of the size of the two houses, this is to be expected.  During the trial period, Cycle 1, King and Cutter have very similar mean pounds of compost 41.70 and 41.74, respectively.  They also have similar plate counts 285 and 289, respectively.  When the trial begins, Cycle 3, those numbers shift slightly.  When King begins the treatment, the mean pounds of compost drops to 40.72.  Cutter, with no trial implemented, has a mean compost of 43.65 pounds.  The mean plates in King during the trial increases slightly to 291.7 while the plates in Cutter moves somewhat to 289.2.  Looking more closely at the change in compost per plate in cycle 1 King has a mean of .147 pounds of compost per plate.  In cycle 3 King's compost per plate fall slightly to .138 pounds.  This mean that for each plate used, there is slightly less compost on it.  In Cutter the mean compost per plate in cycle 1 is .1429 pounds.  In cycle 3 this increases slightly to .1519 pounds of compost per plate.
 
-The standard deviation for King compost in the baseline period (cycle 1) is 12.5 lbs but increases slightly to 15.48 lbs during the experiment (cycle 3).  Overall, there is minimal spread for total amount of compost each night.  The difference between the 1st and 3rd quartile is at most 20 pounds.  Cutter's standard deviation is similar with a spread of 13.88 lbs during the baseline (cycle 1) and 16.10 lbs during the trial (cycle 3).  For either period, the largest difference between the 1st and 3rd quartile is 30 pounds.
+The standard deviation for King compost in the baseline period (cycle 1) is 12.5 lbs but increases slightly to 15.48 lbs during the experiment (cycle 3).  Overall, there is minimal spread for total amount of compost each night.  The difference between the 1st and 3rd quartile is at most 20 pounds.  Cutter's standard deviation is similar with a spread of 13.88 lbs during the baseline (cycle 1) and 16.10 lbs during the trial (cycle 3).  For either period, the largest difference between the 1st and 3rd quartile is 30 pounds.  In King's cycle 1 the standard deviation for compost per plate is .02.  In cycle 3 the standard deviation is .025.  The variation in compost per plate is slightly larger in the 3 cycle.  For Cutter the standard deviation in cycle 1 is .02.  That number fall slightly it .16 showing Cutter has slightly less variation in compost per plate for cycle 3.
 
 A scatter plot of plates and compost shows that there is a general upward trend between the two variables.  The more plates used, the more compost is generated.  Much of the data is clustered around 340 plates and between 40 and 60 pounds of compost.  During cycle 1,  the lines of best fits for both houses are very close.  With fewer plates, King produced more compost.  The lines intersect at approximately 325 plates and 45 pounds of compost, where Cutter starts creating more compost per plate.  In cycle 3, however, the line of best fit for King lies below the line for Cutter. 
 
 
-The histograms show the distribution of compost for both Cutter and King, but is divided into cycle 1 and cycle 3.  The histogram for compost in cycle 1, shows the highest frequencies around 45-50 pounds of compost.  The data has a small spread and no outliers.  Cycle 3 has a higher concentration of rates between 20 and 60 pounds of compost compared to cycle 1.  The data for Cutter appears to be slightly bimodal, while King's data looks normally distributed. 
+The histograms show the distribution of compost per plate for both Cutter and King, but has been divided into cycle 1 and cycle 3.  The histogram for compost in cycle 1, shows the highest frequencies around .125-.162 pounds of compost.  The data has a small spread and no outliers.  King house has the highest frequency of .162 pounds of compost per plate and Cutter has the highest frequency of .130 pounds of compost per plate.  Cycle 3 has the highest concentration of rates between .13-.17 pounds of compost per plate.  This is a much smaller spread compared to cycle 1.  King is uinmodle with a peak around .16 and cutters data has a wider spread without the distinctive peak. 
 
-Using there linear model function looking specifically at the King data, we can see that there is a small decrease in compost level with the posters were added.  However, due to the late p-value, .482, there is no significance.  Additionally, the R^2 value is very small, .006, meaning that the majority of the change in compost level was not due to the poster_date variable.    
-  
+I ran a regression to look at the effect of the variables poster data and house on the level of compost per plat each night. On average when the poster_date variable is turned on (4/5/20) there is a -8.388e-03 decrease in compost per plate when adjusted for house.  The number -2.502e-05 shows the difference between King and Cutter.  King house slightly less compost.  However, neither of the these small decreases are significant.  Additionally, the R^2 value is quite small, 0.02836.  The majority of the total change in compost level was no due to the poster date.  The regression is set up to only look at the results for cycle 1 and cycle 2. 
 
 
 
