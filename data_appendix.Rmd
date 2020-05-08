@@ -58,9 +58,13 @@ This section documents the data sets used in this analysis.
 
 ## Dataset description
 **Citation:** Smith College Dining Services  
+
 **Date Downloaded:** 04/17/2020  
+
 **Filename:** Compost Tracker 3.0.xlsx.
+
 **Unit of observation:** amount of compost recorded in dining halls daily  
+
 **Dates covered:**  February 2020 - April 2020  
 
 ### To obtain a copy
