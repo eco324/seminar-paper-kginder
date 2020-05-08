@@ -149,8 +149,8 @@ This section includes a description of all the variables that are used in the fi
 - **house:** House variable, King or Cutter.
 - **plates:** Number of plates counted per meal.
 - **compost:** Pounds of compost collected per night.
-- **cycle:** Classifies the rotating menu into three distinct cycles.
-- **poster_date:** Dummy variable for posters (poster date 0: 2/2 - 4/4) (posters poster date 1: 4/5 - 5/2).
+- **cycle:** Classifies the rotating menu into three distinct cycles.Cycle 1:  2/2-2/29, Cycle 2: 3/1-4/4, Cycle 3, 4/5-5/2
+- **poster_date:** Dummy variable for posters (poster date 0: 2/2 - 2/29) (posters poster date 1: 4/5 - 5/2).
 - **compost_plate** The amount of compost in (lb) divided by the number of plates.
 
 
@@ -263,8 +263,6 @@ ggplot(data = cycle3_results, aes(x = compost_plate, fill = house)) + geom_histo
 
 
 
-
-
 # Correlation
 
 ```{r Correlation}
@@ -306,9 +304,9 @@ The standard deviation for King compost in the baseline period (Cycle 1) is 12.5
 A scatter plot of plates and compost shows that there is a general upward trend between the two variables.  The more plates used, the more compost is generated.  Much of the data is clustered around 340 plates and between 40 and 60 pounds of compost.  During Cycle 1,  the lines of best fit for both houses are very close.  With fewer plates, King produced more compost.  The lines intersect at approximately 325 plates and 45 pounds of compost, where Cutter starts creating more compost per plate.  In Cycle 3, however, the line of best fit for King lies below the line for Cutter. 
 
 
-The histograms show the distribution of compost per plate for both Cutter and King, but has been divided into Cycle 1 and Cycle 3.  The histogram for compost in Cycle 1, shows the highest frequencies around .125-.162 pounds of compost.  The data has a small spread and no outliers.  King house has the highest frequency of .162 pounds of compost per plate and Cutter has the highest frequency of .130 pounds of compost per plate.  Cycle 3 has the highest concentration of rates between .13-.17 pounds of compost per plate.  This is a much smaller spread compared to Cycle 1.  King is unimodal with a peak around .16 and Cutters data has a wider spread without the distinctive peak. 
+The histograms show the distribution of compost per plate for both Cutter and King, but has been divided into Cycle 1 and Cycle 3.  The histogram for compost in Cycle 1, shows the highest frequencies around .125-.162 pounds of compost.  The data has a small spread and no outliers.  King house has the highest frequency of .162 pounds of compost per plate and Cutter has the highest frequency of .130 pounds of compost per plate.  Cycle 3 has the highest concentration of rates between 0.13-0.17 pounds of compost per plate.  This is a much smaller spread compared to Cycle 1.  King is unimodal with a peak around 0.16 and Cutters data has a wider spread without the distinctive peak. 
 
-For King and Cutter there is a high correlation between plates and compost for the period of time when tracked.  This intintivly makes sence becasue the more plates there are is a signal for more people.  When there are more people eating in the dining hall, more waste will be produced.
+For King and Cutter there is a high correlation between plates and compost for the period of time when tracked.  This intuitively makes sense because when there are more plates, it is a signal for more people.  When there are more people eating in the dining hall, more waste will be produced.
 
 I ran a regression to look at the effect of the variables poster data and house on the level of compost per plat each night. On average when the poster_date variable is turned on (4/5/20) there is a -8.388e-03 decrease in compost per plate when adjusted for house.  The number -2.502e-05 shows the difference between King and Cutter.  King house slightly less compost.  However, neither of the these small decreases are significant.  Additionally, the R^2 value is quite small, 0.02836.  The majority of the total change in compost level was no due to the poster date.  The regression is set up to only look at the results for Cycle 1 and Cycle 2. 
 
